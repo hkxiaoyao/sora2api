@@ -1633,6 +1633,39 @@ class SoraClient:
         result = await self._nf_create_urllib(token, json_data, sentinel_token, proxy_url, user_agent=user_agent)
         return result.get("id")
 
+    async def extend_video(self, generation_id: str, prompt: str, extension_duration_s: int,
+                          token: str, token_id: Optional[int] = None) -> str:
+        """Extend an existing video draft by generation id.
+
+        Args:
+            generation_id: Draft generation ID (gen_xxx)
+            prompt: User prompt for extension
+            extension_duration_s: Extension duration in seconds (10 or 15)
+            token: Access token
+            token_id: Token ID for token-specific proxy (optional)
+
+        Returns:
+            task_id
+        """
+        if extension_duration_s not in [10, 15]:
+            raise ValueError("extension_duration_s must be 10 or 15")
+
+        json_data = {
+            "user_prompt": prompt,
+            "extension_duration_s": extension_duration_s,
+            "enable_rewrite": True
+        }
+
+        result = await self._make_request(
+            "POST",
+            f"/project_y/profile/drafts/{generation_id}/long_video_extension",
+            token,
+            json_data=json_data,
+            add_sentinel_token=True,
+            token_id=token_id
+        )
+        return result.get("id")
+
     async def generate_storyboard(self, prompt: str, token: str, orientation: str = "landscape",
                                  media_id: Optional[str] = None, n_frames: int = 450, style_id: Optional[str] = None) -> str:
         """Generate video using storyboard mode

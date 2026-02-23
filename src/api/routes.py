@@ -54,7 +54,10 @@ async def list_models(api_key: str = Depends(verify_api_key_header)):
         if config['type'] == 'image':
             description += f" - {config['width']}x{config['height']}"
         elif config['type'] == 'video':
-            description += f" - {config['orientation']}"
+            if config.get("mode") == "video_extension":
+                description += f" - long video extension ({config.get('extension_duration_s', 10)}s)"
+            else:
+                description += f" - {config.get('orientation', 'unknown')}"
         elif config['type'] == 'avatar_create':
             description += " - create avatar from video"
         elif config['type'] == 'prompt_enhance':
